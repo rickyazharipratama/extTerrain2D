@@ -13,6 +13,6 @@ namespace extTerrain2D
 	{
 		None,
 
-		Polygon
+		Mesh
 	}
 }

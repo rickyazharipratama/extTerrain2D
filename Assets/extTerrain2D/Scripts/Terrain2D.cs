@@ -73,7 +73,7 @@ namespace extTerrain2D
 		private int _quality = 5;
 
 		[SerializeField]
-		private ColliderType _colliderType = ColliderType.Polygon;
+		private ColliderType _colliderType = ColliderType.Mesh;
 
 		[SerializeField]
 		private Vector2 _groundUVOffset = Vector2.zero;
@@ -299,7 +299,7 @@ namespace extTerrain2D
 				var position = GetPosition(time);
 
 				var x = _width * position.x;
-				var y = Mathf.Max(0, _heights[i] - _lineWidth);
+				var y = Mathf.Max(0, _heights[i]);
 
 				vertices.Add(new Vector3(x, 0f, 0f));
 				vertices.Add(new Vector3(x, y, 0f));
@@ -316,8 +316,8 @@ namespace extTerrain2D
 				var x = _width * position.x;
 				var y = Mathf.Max(0, _heights[i]);
 
-				vertices.Add(new Vector3(x, Mathf.Max(0, y - _lineWidth), 0f));
 				vertices.Add(new Vector3(x, y, 0f));
+				vertices.Add(new Vector3(x, y, _lineWidth));
 			}
 
 			var triangles = new List<int>();
@@ -389,36 +389,15 @@ namespace extTerrain2D
 					colliders[i].enabled = false;
 				}
 			}
-			if (_colliderType == ColliderType.Polygon)
-			{
-				var collider = GetComponent<PolygonCollider2D>();
-				if (collider == null) collider = gameObject.AddComponent<PolygonCollider2D>();
-
-				collider.enabled = true;
-
-				var points = new Vector2[segmentsCount + 5];
-				points[0] = Vector2.zero;
-
-				for (int i = 0; i < segmentsCount; i++)
-				{
-					var time = (1f / (_quality * _width)) * i;
-					var position = GetPosition(time);
-
-					var x = _width * position.x;
-					var y = Mathf.Max(0, _heights[i]);
-
-					points[i + 1] = new Vector2(x, y);
+			if(_colliderType == ColliderType.Mesh){
+				MeshCollider collider = GetComponent<MeshCollider>();
+				if(collider == null) collider = gameObject.AddComponent<MeshCollider>();
+				if(!collider.enabled){
+					collider.enabled = true;
 				}
-
-				points[points.Length - 4] = new Vector2(_width, 0);
-				points[points.Length - 3] = new Vector2(_width * 0.75f, 0);
-				points[points.Length - 2] = new Vector2(_width * 0.50f, 0);
-				points[points.Length - 1] = new Vector2(_width * 0.25f, 0);
-
-				collider.SetPath(0, points);
+				collider.sharedMesh = _mesh;
 			}
 		}
-
 		#endregion
 	}
 }
